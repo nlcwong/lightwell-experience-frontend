@@ -398,7 +398,7 @@ const Beacon = () => {
       panelCloseAriaLabel='Close submission trends'
       panelHead={
         <LwTitle headingLevel='h2' size='xl'>
-          How you stack up against everyone else
+          Beacon Submission Trends
         </LwTitle>
       }
       panelContent={trends ? <BeaconTrendsPanel trends={trends} /> : null}
