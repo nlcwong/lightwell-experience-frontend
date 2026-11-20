@@ -1,0 +1,38 @@
+/* Chart on the left, fixed-content legend on the right (never wraps under the plot). */
+.lw-c-metrics-trend-chart {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--xl);
+  width: 100%;
+  min-width: 0;
+}
+
+.lw-c-metrics-trend-chart__plot {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lw-c-metrics-trend-chart__legend {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--pf-t--global--text--color--regular);
+}
+
+.lw-c-metrics-trend-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--sm);
+}
+
+.lw-c-metrics-trend-chart__swatch {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--pf-t--global--spacer--md);
+  height: var(--pf-t--global--spacer--md);
+  border-radius: var(--pf-t--global--border--radius--tiny);
+}

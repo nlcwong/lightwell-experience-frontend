@@ -31,6 +31,7 @@ each replace lands. Nothing is deleted in this scaffolding pass.
 | Stat item   | `LwStatItem`          | Compact value + label (no PF host); prefer Count when bar/tooltip needed | [`stat-item/README.md`](./stat-item/README.md) |
 | Donut chart | `LwMetricsDonutChart` | Donut / utilization metrics                                              | [`donut/ROADMAP.md`](./donut/ROADMAP.md)       |
 | Stack chart | `LwMetricsStackChart` | Stacked bar / area metrics                                               | [`stack/ROADMAP.md`](./stack/ROADMAP.md)       |
+| Trend chart | `LwMetricsTrendChart` | Monthly bar trends (1–2 series), side legend, help popover               | [`trend/ROADMAP.md`](./trend/ROADMAP.md)       |
 
 Add a unit row here when a unit folder + roadmap + README are created. Do **not**
 put step APIs, animation details, or chart series props in this file.
@@ -74,6 +75,7 @@ must cite this convention and not redefine it.
 | F5    | Chart units + Lens `chartTheme` consumers read root colors                           | donut/stack roadmaps                                                                     |
 | F5a   | Lens coverage layout extract — snapshot, page compose, restore domain blocks         | [`examples/lens-coverage-layout-extract.md`](./examples/lens-coverage-layout-extract.md) |
 | F6    | Further product replaces as needed                                                   | product                                                                                  |
+| F7    | Beacon submission-trends drawer (LWLP-1961): `LwDrawer` + CTA + `LwMetricsTrendChart` | [`trend/ROADMAP.md`](./trend/ROADMAP.md) + product                                       |
 
 F3+ are **replace** operations at call sites — additive kit, swap imports/JSX.
 

@@ -47,6 +47,13 @@ export type {
   LwMetricsStackLegendItem,
 } from './metrics/stack/metrics-stack-chart';
 
+export { LwMetricsTrendChart } from './metrics/trend/metrics-trend-chart';
+export type {
+  LwMetricsTrendChartProps,
+  LwMetricsTrendSeries,
+  LwMetricsTrendA11yTable,
+} from './metrics/trend/metrics-trend-chart';
+
 export { LwStatItem } from './metrics/stat-item/stat-item';
 export type { LwStatItemProps, LwStatItemVariant } from './metrics/stat-item/stat-item';
 

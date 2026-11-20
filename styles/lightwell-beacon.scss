@@ -87,3 +87,38 @@
   max-width: 360px;
   min-width: 0;
 }
+
+/* Submission-trends drawer (LWLP-1961) */
+.lightwell-beacon-trends__intro {
+  margin-block-end: var(--pf-t--global--spacer--lg);
+  color: var(--pf-t--global--text--color--subtle--default);
+}
+
+.lightwell-beacon-trends__metric {
+  margin-block-end: var(--pf-t--global--spacer--xl);
+}
+
+.lightwell-beacon-trends__titlerow {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--sm);
+  margin-block-end: var(--pf-t--global--spacer--sm);
+}
+
+.lightwell-beacon-trends__privacy-icon {
+  margin-inline-end: var(--pf-t--global--spacer--xs);
+  color: var(--pf-t--global--icon--color--status--info--default);
+  vertical-align: -0.125em;
+}
+
+/* Link CTA in the hero that opens the trends drawer */
+.lightwell-beacon-trends-cta {
+  margin-block-start: var(--pf-t--global--spacer--md);
+}
+
+.lightwell-beacon-trends-cta__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--xs);
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+}

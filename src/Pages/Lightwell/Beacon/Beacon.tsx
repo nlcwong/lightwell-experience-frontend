@@ -35,6 +35,7 @@ import {
 import {
   LwButton,
   LwCheckbox,
+  LwDrawer,
   LwEmptyState,
   LwForm,
   LwList,
@@ -61,6 +62,9 @@ import { useBeaconExport } from './hooks/useBeaconExport';
 import { getVulnerabilityTableCellProps } from './components/vulnerabilityTableStickyColumns';
 import { renderVulnerabilityCell } from './utils/vulnerabilityTableCells';
 import { useBeaconData } from './hooks/useBeaconData';
+import { useBeaconTrends } from './hooks/useBeaconTrends';
+import { BeaconTrendsCta } from './components/BeaconTrendsCta';
+import { BeaconTrendsPanel } from './components/BeaconTrendsPanel';
 import {
   type BeaconVulnerabilityFilters,
   type BeaconVulnerabilityFlag,
@@ -171,6 +175,7 @@ const Beacon = () => {
   });
 
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
+  const [isTrendsDrawerOpen, setIsTrendsDrawerOpen] = useState(false);
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
   const [selectedStatuses, setSelectedStatuses] = useState<Set<Status>>(new Set());
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
@@ -270,6 +275,12 @@ const Beacon = () => {
   } = useBeaconData(selectedCustomerId, queryFilters, pagination);
   const { data: ltwlsuptTicketIds = [] } = useLtwlsuptTicketIdsQuery(selectedCustomerId);
   const { data: lastUpdated } = useBeaconStatusQuery();
+  const { data: trends } = useBeaconTrends(selectedCustomerId);
+
+  // The drawer belongs to the selected customer; close it when none is selected.
+  useEffect(() => {
+    if (!selectedCustomerId) setIsTrendsDrawerOpen(false);
+  }, [selectedCustomerId]);
 
   const isLoading = !displayData && isLoadingDisplay;
 
@@ -381,7 +392,18 @@ const Beacon = () => {
   const slaPolicyBody = <LwList items={SLA_POLICY_ITEMS} />;
 
   return (
-    <>
+    <LwDrawer
+      isExpanded={isTrendsDrawerOpen}
+      onPanelClose={() => setIsTrendsDrawerOpen(false)}
+      panelCloseAriaLabel='Close submission trends'
+      panelHead={
+        <LwTitle headingLevel='h2' size='xl'>
+          How you stack up against everyone else
+        </LwTitle>
+      }
+      panelContent={trends ? <BeaconTrendsPanel trends={trends} /> : null}
+      panelProps={{ defaultSize: '42rem', minSize: '32rem' }}
+    >
       <LwPageHeader hero bodyWidth='100%' bodyMaxWidth='100%'>
         <PageChromeSlots>
           <PageChromeSlot>
@@ -485,6 +507,7 @@ const Beacon = () => {
                   </LwMetricsCountSlots>
                 </LwLoaded>
               </LwMetricsCard>
+              <BeaconTrendsCta onClick={() => setIsTrendsDrawerOpen(true)} />
             </PageChromeSlot>
           ) : null}
         </PageChromeSlots>
@@ -624,7 +647,7 @@ const Beacon = () => {
           />
         ) : null}
       </PageSection>
-    </>
+    </LwDrawer>
   );
 };
 
