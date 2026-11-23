@@ -3,6 +3,7 @@ import {
   Chart,
   ChartAxis,
   ChartBar,
+  ChartLabel,
   ChartStack,
   ChartTooltip,
   type ChartBarProps,
@@ -17,6 +18,8 @@ export type LwMetricsStackBarDatum = {
   y: number;
   fill: string;
   supported?: boolean;
+  /** Optional extra line appended to this bar's tooltip. Call site composes the text. */
+  tooltipDetail?: string;
 };
 
 export type LwMetricsStackSeries = {
@@ -56,12 +59,29 @@ const formatIntegerTicks = (tick: number): string =>
 
 const hasBarData = (bars: LwMetricsStackBarDatum[]): boolean => bars.some(({ y }) => y > 0);
 
+/**
+ * Builds a bar's tooltip label: "{kind}: {y} packages", with an unsupported note
+ * and an optional call-site `tooltipDetail` appended on its own line. Returns null
+ * for empty bars (no tooltip). Exported for unit testing.
+ */
+export const buildBarTooltipLabel = (
+  kind: string,
+  datum: LwMetricsStackBarDatum,
+): string | null => {
+  if (datum.y <= 0) {
+    return null;
+  }
+  const base = `${kind}: ${datum.y} packages${datum.supported === false ? ' (ecosystem unsupported)' : ''}`;
+  return datum.tooltipDetail ? `${base}\n${datum.tooltipDetail}` : base;
+};
+
 const getBarTooltipProps = (kind: string) => ({
-  labelComponent: <ChartTooltip constrainToVisibleArea />,
-  labels: ({ datum }: { datum: LwMetricsStackBarDatum }) =>
-    datum.y > 0
-      ? `${kind}: ${datum.y} packages${datum.supported === false ? ' (ecosystem unsupported)' : ''}`
-      : null,
+  // Victory's default label lineHeight is 1 (cramped for multi-line tooltipDetail);
+  // loosen it so the breakdown lines have breathing room.
+  labelComponent: (
+    <ChartTooltip constrainToVisibleArea labelComponent={<ChartLabel lineHeight={1.5} />} />
+  ),
+  labels: ({ datum }: { datum: LwMetricsStackBarDatum }) => buildBarTooltipLabel(kind, datum),
 });
 
 const getLegendSwatchStyle = (fill: string): CSSProperties => ({

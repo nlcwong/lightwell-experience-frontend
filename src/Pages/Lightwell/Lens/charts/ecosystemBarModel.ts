@@ -2,6 +2,7 @@ import { getEcosystemMatchColor, UNMATCHED_FILL } from './chartTheme';
 import type {
   CompletedCoverageReport,
   CoverageMatchStatus,
+  EcosystemCoveragePercentages,
   EcosystemCoverageSummary,
 } from 'services/Lightwell/CoverageReportsApi';
 import { formatEcosystemName } from '../utils/ecosystem';
@@ -14,6 +15,8 @@ export type EcosystemBarDatum = {
   y: number;
   fill: string;
   supported: boolean;
+  // Extra tooltip line (partial series only): the major/minor/patch/none breakdown.
+  tooltipDetail?: string;
 };
 
 export type EcosystemChartLegendItem = {
@@ -57,12 +60,38 @@ const toBarSeries = (
     supported: eco.supported,
   }));
 
+// Whole number when integral, else one decimal (20 -> "20", 7.7 -> "7.7").
+const formatPct = (value: number): string => `${Math.round(value * 10) / 10}`;
+
+// Partial-segment tooltip breakdown (LWLP-6123), one level per line in fixed
+// order: Major, Minor, Patch, None.
+export const formatPartialBreakdown = (pct: EcosystemCoveragePercentages): string =>
+  [
+    `Major - ${formatPct(pct.major)}%`,
+    `Minor - ${formatPct(pct.minor)}%`,
+    `Patch - ${formatPct(pct.patch)}%`,
+    `None - ${formatPct(pct.none)}%`,
+  ].join('\n');
+
 export const getEcosystemChartModel = (report: CompletedCoverageReport): EcosystemChartModel => {
   const summaries = orderSummaries(report.ecosystem_coverage_summary);
+  const percentagesByEcosystem = new Map(
+    (report.ecosystem_coverage_percentages ?? []).map((pct) => [pct.ecosystem, pct]),
+  );
+
+  // Attach the partial breakdown to each partial bar when percentages are present.
+  const partialPackages = toBarSeries(
+    summaries,
+    (eco) => eco.partial_matches,
+    getSeriesFill('partial'),
+  ).map((datum) => {
+    const pct = percentagesByEcosystem.get(datum.x);
+    return pct ? { ...datum, tooltipDetail: formatPartialBreakdown(pct) } : datum;
+  });
 
   return {
     exactPackages: toBarSeries(summaries, (eco) => eco.exact_matches, getSeriesFill('exact')),
-    partialPackages: toBarSeries(summaries, (eco) => eco.partial_matches, getSeriesFill('partial')),
+    partialPackages,
     unmatchedPackages: toBarSeries(
       summaries,
       (eco) => eco.unmatched,

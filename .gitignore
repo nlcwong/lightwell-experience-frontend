@@ -34,3 +34,7 @@ playwright/.cache/
 .auth
 creds*
 !creds.example.json
+
+# Local stage mkcert certs (never commit)
+*.pem
+.lwlp1961-harness/

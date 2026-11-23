@@ -10,37 +10,110 @@ const DUMMY_PACKAGE_SEEDS: Omit<CoverageReportPackage, 'ecosystem' | 'cve_count'
   [
     { name: 'spring-web', version: '6.1.5', covered: true, match_status: 'exact' },
     { name: 'spring-core', version: '6.1.5', covered: true, match_status: 'exact' },
-    { name: 'spring-boot-starter-web', version: '3.2.4', covered: true, match_status: 'partial' },
+    {
+      name: 'spring-boot-starter-web',
+      version: '3.2.4',
+      covered: true,
+      match_status: 'partial',
+      // minor: major+minor agree, patch differs (3.2.4 -> 3.2.9)
+      lightwell_versions: ['3.2.1', '3.2.9'],
+      nearest_higher_version: '3.2.9',
+      match_segment: 'minor',
+    },
     { name: 'jackson-databind', version: '2.17.0', covered: true, match_status: 'exact' },
     { name: 'netty-codec-http', version: '4.1.108.Final', covered: false, match_status: 'none' },
     { name: 'guava', version: '33.3.0', covered: true, match_status: 'exact' },
-    { name: 'commons-lang3', version: '3.14.0', covered: true, match_status: 'partial' },
+    {
+      name: 'commons-lang3',
+      version: '3.14.0',
+      covered: true,
+      match_status: 'partial',
+      // patch: major.minor.patch agree, 4th component differs (3.14.0 -> 3.14.0.2)
+      lightwell_versions: ['3.14.0.2', '3.14.0.5'],
+      nearest_higher_version: '3.14.0.2',
+      match_segment: 'patch',
+    },
     { name: 'log4j-core', version: '2.23.1', covered: false, match_status: 'none' },
     { name: 'requests', version: '2.31.0', covered: true, match_status: 'exact' },
     { name: 'urllib3', version: '2.0.7', covered: false, match_status: 'none' },
     { name: 'idna', version: '3.7', covered: true, match_status: 'exact' },
-    { name: 'django', version: '4.2.11', covered: true, match_status: 'partial' },
+    {
+      name: 'django',
+      version: '4.2.11',
+      covered: true,
+      match_status: 'partial',
+      // major: only major agrees (4.2.11 -> 4.7.0)
+      lightwell_versions: ['4.5.2', '4.7.0'],
+      nearest_higher_version: '4.7.0',
+      match_segment: 'major',
+    },
     { name: 'flask', version: '3.0.3', covered: true, match_status: 'exact' },
     { name: 'numpy', version: '1.26.4', covered: true, match_status: 'exact' },
     { name: 'pandas', version: '2.2.2', covered: false, match_status: 'none' },
-    { name: 'lodash', version: '4.17.21', covered: true, match_status: 'partial' },
+    {
+      name: 'lodash',
+      version: '4.17.21',
+      covered: true,
+      match_status: 'partial',
+      // none with a higher version: strictly higher exists but shares no major (4.17.21 -> 5.0.0)
+      lightwell_versions: ['5.0.0'],
+      nearest_higher_version: '5.0.0',
+      match_segment: 'none',
+    },
     { name: 'react', version: '18.3.1', covered: true, match_status: 'exact' },
     { name: 'axios', version: '1.7.2', covered: false, match_status: 'none' },
     { name: 'express', version: '4.19.2', covered: true, match_status: 'exact' },
-    { name: 'typescript', version: '5.5.4', covered: true, match_status: 'partial' },
+    {
+      name: 'typescript',
+      version: '5.5.4',
+      covered: true,
+      match_status: 'partial',
+      // minor: patch differs (5.5.4 -> 5.5.9)
+      lightwell_versions: ['5.5.9', '5.6.0'],
+      nearest_higher_version: '5.5.9',
+      match_segment: 'minor',
+    },
     { name: 'webpack', version: '5.93.0', covered: false, match_status: 'none' },
     { name: 'eslint', version: '9.8.0', covered: true, match_status: 'exact' },
     { name: 'prettier', version: '3.3.3', covered: true, match_status: 'exact' },
-    { name: 'jest', version: '29.7.0', covered: true, match_status: 'partial' },
+    {
+      name: 'jest',
+      version: '29.7.0',
+      covered: true,
+      match_status: 'partial',
+      // empty nearest: catalog spelling is the same numeric value, so nothing is
+      // strictly higher (29.7.0 vs 29.7.0.0) — stays partial, match_segment none.
+      lightwell_versions: ['29.7.0.0'],
+      nearest_higher_version: '',
+      match_segment: 'none',
+    },
     { name: 'moment', version: '2.30.1', covered: false, match_status: 'none' },
     { name: 'uuid', version: '10.0.0', covered: true, match_status: 'exact' },
     { name: 'chalk', version: '5.3.0', covered: true, match_status: 'exact' },
     { name: 'commander', version: '12.1.0', covered: false, match_status: 'none' },
-    { name: 'minimist', version: '1.2.8', covered: true, match_status: 'partial' },
+    {
+      name: 'minimist',
+      version: '1.2.8',
+      covered: true,
+      match_status: 'partial',
+      // minor: patch differs (1.2.8 -> 1.2.15)
+      lightwell_versions: ['1.2.15', '1.9.0'],
+      nearest_higher_version: '1.2.15',
+      match_segment: 'minor',
+    },
     { name: 'debug', version: '4.3.6', covered: true, match_status: 'exact' },
     { name: 'semver', version: '7.6.3', covered: true, match_status: 'exact' },
     { name: 'glob', version: '11.0.0', covered: false, match_status: 'none' },
-    { name: 'rimraf', version: '6.0.1', covered: true, match_status: 'partial' },
+    {
+      name: 'rimraf',
+      version: '6.0.1',
+      covered: true,
+      match_status: 'partial',
+      // patch: 4th component differs (6.0.1 -> 6.0.1.4)
+      lightwell_versions: ['6.0.1.4'],
+      nearest_higher_version: '6.0.1.4',
+      match_segment: 'patch',
+    },
     { name: 'mkdirp', version: '3.0.1', covered: true, match_status: 'exact' },
     { name: 'yargs', version: '17.7.2', covered: false, match_status: 'none' },
     { name: 'inquirer', version: '10.1.8', covered: true, match_status: 'exact' },
@@ -68,11 +141,40 @@ const dummyCveData = (
   };
 };
 
+// Fills the LWLP-5925 partial-match fields: partial seeds carry their own explicit
+// values; exact matches list their own version (no higher); none matches are empty.
+const dummyMatchDetail = (
+  pkg: Pick<
+    CoverageReportPackage,
+    'version' | 'match_status' | 'lightwell_versions' | 'nearest_higher_version' | 'match_segment'
+  >,
+): Pick<
+  CoverageReportPackage,
+  'lightwell_versions' | 'nearest_higher_version' | 'match_segment'
+> => {
+  if (pkg.match_status === 'none') {
+    return { lightwell_versions: [], nearest_higher_version: '', match_segment: 'none' };
+  }
+  if (pkg.match_status === 'exact') {
+    return {
+      lightwell_versions: pkg.lightwell_versions ?? [pkg.version],
+      nearest_higher_version: '',
+      match_segment: 'none',
+    };
+  }
+  return {
+    lightwell_versions: pkg.lightwell_versions ?? [pkg.version],
+    nearest_higher_version: pkg.nearest_higher_version ?? '',
+    match_segment: pkg.match_segment ?? 'none',
+  };
+};
+
 export const getDummyCoveragePackages = (ecosystems: string[]): CoverageReportPackage[] =>
   DUMMY_PACKAGE_SEEDS.map((pkg, index) => ({
     ...pkg,
     ecosystem: ecosystems[index % ecosystems.length],
     ...dummyCveData(index, pkg.match_status),
+    ...dummyMatchDetail(pkg),
   }));
 
 export const filterCoveragePackages = (

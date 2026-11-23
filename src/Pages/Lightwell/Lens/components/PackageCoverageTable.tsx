@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Flex,
   FlexItem,
@@ -31,6 +31,8 @@ import {
 import { useCoverageReportPackagesQuery } from 'services/Lightwell/CoverageReportsQueries';
 import { matchFilterOptions, usePackageCoverageTable } from '../hooks/usePackageCoverageTable';
 import type { CoverageReportPackage } from 'services/Lightwell/CoverageReportsApi';
+import { LwButton } from 'kit/components/primitives';
+import PartialMatchDrawer from './PartialMatchDrawer';
 import type { EcosystemInfo } from '../utils/ecosystem';
 import {
   CVE_SEVERITIES,
@@ -120,6 +122,9 @@ const PackageCoverageTable = ({
     ecosystems.map(({ name, supported }) => [name, supported]),
   );
 
+  // Partial-match details drawer: the package whose row name was clicked.
+  const [selectedPartial, setSelectedPartial] = useState<CoverageReportPackage | null>(null);
+
   const {
     filters,
     debouncedFilters,
@@ -196,7 +201,21 @@ const PackageCoverageTable = ({
     return {
       id: `${pkg.ecosystem}-${pkg.name}-${pkg.version}`,
       row: [
-        { cell: pkg.name },
+        {
+          cell:
+            pkg.match_status === 'partial' ? (
+              <LwButton
+                variant='link'
+                isInline
+                onClick={() => setSelectedPartial(pkg)}
+                ouiaId={`lightwell-partial-match-trigger-${pkg.ecosystem}-${pkg.name}`}
+              >
+                {pkg.name}
+              </LwButton>
+            ) : (
+              pkg.name
+            ),
+        },
         { cell: pkg.version || '—' },
         {
           cell: (
@@ -250,70 +269,72 @@ const PackageCoverageTable = ({
   );
 
   return (
-    <DataView data-ouia-component-id={ouiaId} activeState={activeState}>
-      <DataViewToolbar
-        ouiaId='lightwell-package-coverage-toolbar'
-        clearAllFilters={clearAllFiltersAndResetPage}
-        filters={
-          <DataViewFilters onChange={handleFilterChange} values={filters}>
-            <DataViewTextFilter
-              key={`search-${filtersActiveAttributeResetKey}`}
-              filterId='search'
-              ouiaId='lightwell-package-coverage-filter-search'
-              title='Package'
-              placeholder='Search packages...'
-            />
-            <DataViewCheckboxFilter
-              filterId='match_status'
-              ouiaId='lightwell-package-coverage-filter-match'
-              title='Match'
-              placeholder='Filter by match'
-              options={matchFilterOptions}
-            />
-            <DataViewCheckboxFilter
-              filterId='ecosystem'
-              ouiaId='lightwell-package-coverage-filter-ecosystem'
-              title='Ecosystem'
-              placeholder='Filter by ecosystem'
-              options={ecosystemFilterOptions}
-            />
-          </DataViewFilters>
-        }
-      >
-        <ToolbarItem variant={ToolbarItemVariant.pagination} align={{ default: 'alignEnd' }}>
-          {topPagination}
-        </ToolbarItem>
-      </DataViewToolbar>
-      <DataViewTable
-        aria-label='Package coverage table'
-        ouiaId={ouiaId}
-        variant='compact'
-        columns={dataViewColumns}
-        rows={dataViewRows}
-        bodyStates={{
-          empty: (
-            <EmptyTableDataView
-              ouiaId={ouiaId}
-              variant={isFiltered ? 'filtered' : 'zero'}
-              itemName='packages'
-              zeroBody='No packages were found in this manifest.'
-              colSpan={columns.length}
-              onClearFilters={clearAllFiltersAndResetPage}
-            />
-          ),
-          loading: <SkeletonTableBody rowsCount={perPage} columnsCount={columns.length} />,
-          error: (
-            <ErrorState
-              titleText='Unable to load packages'
-              bodyText='There was an error retrieving data. Check your connection and reload the page.'
-              // Pass fragment to avoid rendering the default footer with a CTA button
-              customFooter={<></>}
-            />
-          ),
-        }}
-      />
-      <DataViewToolbar pagination={bottomPagination} />
-    </DataView>
+    <PartialMatchDrawer selected={selectedPartial} onClose={() => setSelectedPartial(null)}>
+      <DataView data-ouia-component-id={ouiaId} activeState={activeState}>
+        <DataViewToolbar
+          ouiaId='lightwell-package-coverage-toolbar'
+          clearAllFilters={clearAllFiltersAndResetPage}
+          filters={
+            <DataViewFilters onChange={handleFilterChange} values={filters}>
+              <DataViewTextFilter
+                key={`search-${filtersActiveAttributeResetKey}`}
+                filterId='search'
+                ouiaId='lightwell-package-coverage-filter-search'
+                title='Package'
+                placeholder='Search packages...'
+              />
+              <DataViewCheckboxFilter
+                filterId='match_status'
+                ouiaId='lightwell-package-coverage-filter-match'
+                title='Match'
+                placeholder='Filter by match'
+                options={matchFilterOptions}
+              />
+              <DataViewCheckboxFilter
+                filterId='ecosystem'
+                ouiaId='lightwell-package-coverage-filter-ecosystem'
+                title='Ecosystem'
+                placeholder='Filter by ecosystem'
+                options={ecosystemFilterOptions}
+              />
+            </DataViewFilters>
+          }
+        >
+          <ToolbarItem variant={ToolbarItemVariant.pagination} align={{ default: 'alignEnd' }}>
+            {topPagination}
+          </ToolbarItem>
+        </DataViewToolbar>
+        <DataViewTable
+          aria-label='Package coverage table'
+          ouiaId={ouiaId}
+          variant='compact'
+          columns={dataViewColumns}
+          rows={dataViewRows}
+          bodyStates={{
+            empty: (
+              <EmptyTableDataView
+                ouiaId={ouiaId}
+                variant={isFiltered ? 'filtered' : 'zero'}
+                itemName='packages'
+                zeroBody='No packages were found in this manifest.'
+                colSpan={columns.length}
+                onClearFilters={clearAllFiltersAndResetPage}
+              />
+            ),
+            loading: <SkeletonTableBody rowsCount={perPage} columnsCount={columns.length} />,
+            error: (
+              <ErrorState
+                titleText='Unable to load packages'
+                bodyText='There was an error retrieving data. Check your connection and reload the page.'
+                // Pass fragment to avoid rendering the default footer with a CTA button
+                customFooter={<></>}
+              />
+            ),
+          }}
+        />
+        <DataViewToolbar pagination={bottomPagination} />
+      </DataView>
+    </PartialMatchDrawer>
   );
 };
 

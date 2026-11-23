@@ -38,14 +38,18 @@ per-bar `fill`); kit owns PF `Chart` + `ChartStack` harness.
 />
 ```
 
-| Prop               | Role                                                         |
-| ------------------ | ------------------------------------------------------------ |
-| `series`           | Stacked layers (`id`, `label`, `data[]` with `x`/`y`/`fill`) |
-| `width` / `height` | Chart box                                                    |
-| `allowTooltip?`    | Default true                                                 |
-| `showLegend?`      | Optional side legend (e.g. PDF)                              |
-| `a11yTable?`       | Screen-reader table                                          |
-| `containerRef?`    | Web measure host                                             |
+| Prop               | Role                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| `series`           | Stacked layers (`id`, `label`, `data[]` with `x`/`y`/`fill`, optional `tooltipDetail`) |
+| `width` / `height` | Chart box                                                                              |
+| `allowTooltip?`    | Default true                                                                           |
+| `showLegend?`      | Optional side legend (e.g. PDF)                                                        |
+| `a11yTable?`       | Screen-reader table                                                                    |
+| `containerRef?`    | Web measure host                                                                       |
+
+**Datum `tooltipDetail?`** — optional plain string the call site composes; when a
+bar has `y > 0` and `tooltipDetail` is set, the kit appends it to that bar's tooltip
+on a new line. Kit stays generic (no domain types); the page owns the wording.
 
 ---
 

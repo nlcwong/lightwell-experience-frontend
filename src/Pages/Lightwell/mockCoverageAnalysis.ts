@@ -62,6 +62,41 @@ export const MOCK_REPORT: CompletedCoverageReport = {
       unmatched: 80,
     },
   ],
+  // Per-ecosystem % breakdown (LWLP-6123). Within a supported ecosystem:
+  // exact ↔ exact_matches, (major+minor+patch+none) ↔ partial_matches,
+  // no_coverage ↔ unmatched. Unsupported ecosystems are 100% no_coverage.
+  ecosystem_coverage_percentages: [
+    {
+      ecosystem: 'Python',
+      exact: 67.5,
+      major: 2.5,
+      minor: 5.0,
+      patch: 7.5,
+      none: 2.5,
+      no_coverage: 15.0,
+    },
+    {
+      ecosystem: 'Java',
+      exact: 69.2,
+      major: 1.6,
+      minor: 4.6,
+      patch: 7.7,
+      none: 3.1,
+      no_coverage: 13.8,
+    },
+    { ecosystem: 'Go', exact: 0, major: 0, minor: 0, patch: 0, none: 0, no_coverage: 100 },
+    { ecosystem: 'C#', exact: 0, major: 0, minor: 0, patch: 0, none: 0, no_coverage: 100 },
+    { ecosystem: 'Rust', exact: 0, major: 0, minor: 0, patch: 0, none: 0, no_coverage: 100 },
+    {
+      ecosystem: 'JavaScript',
+      exact: 69.1,
+      major: 1.8,
+      minor: 5.5,
+      patch: 7.3,
+      none: 1.8,
+      no_coverage: 14.5,
+    },
+  ],
 };
 
 const mockUploadProps: ManifestUploadCardProps = {

@@ -6,6 +6,27 @@ import { usePackageCoverageTable } from '../hooks/usePackageCoverageTable';
 import { useCoverageReportPackagesQuery } from 'services/Lightwell/CoverageReportsQueries';
 import { defaultCoverageReportPackagesItem, ReactQueryTestWrapper } from 'testingHelpers';
 import type { EcosystemInfo } from '../utils/ecosystem';
+import type { CoverageReportPackage } from 'services/Lightwell/CoverageReportsApi';
+
+const mockPackagesData = (packages: CoverageReportPackage[]) =>
+  (useCoverageReportPackagesQuery as jest.Mock).mockImplementation(() => ({
+    isLoading: false,
+    isFetching: false,
+    isError: false,
+    data: { data: packages, meta: { count: packages.length, limit: 20, offset: 0 } },
+  }));
+
+const partialWithDetail: CoverageReportPackage = {
+  name: 'netty-codec-http',
+  version: '4.1.86.Final',
+  ecosystem: 'Java',
+  covered: true,
+  match_status: 'partial',
+  cve_count: { critical: 0, important: 0, moderate: 0, low: 0 },
+  lightwell_versions: ['4.1.9.Final', '4.1.86.Final', '4.1.108.Final'],
+  nearest_higher_version: '4.1.108.Final',
+  match_segment: 'minor',
+};
 
 jest.mock('services/Lightwell/CoverageReportsQueries', () => ({
   ...jest.requireActual('services/Lightwell/CoverageReportsQueries'),
@@ -171,5 +192,80 @@ describe('PackageCoverageTable', () => {
     expect(within(menu).getByRole('menuitem', { name: 'Package' })).toBeInTheDocument();
     expect(within(menu).getByRole('menuitem', { name: 'Match' })).toBeInTheDocument();
     expect(within(menu).getByRole('menuitem', { name: 'Ecosystem' })).toBeInTheDocument();
+  });
+
+  describe('partial-match drawer', () => {
+    it('opens the drawer with match detail when a partial package name is clicked', async () => {
+      const user = userEvent.setup();
+      mockPackagesData([partialWithDetail]);
+      renderTable();
+
+      await user.click(screen.getByRole('button', { name: 'netty-codec-http' }));
+
+      // Panel heading (distinct from the trigger button).
+      expect(screen.getByRole('heading', { name: 'netty-codec-http' })).toBeInTheDocument();
+      expect(screen.getByText('Nearest higher version in Lightwell')).toBeInTheDocument();
+      // Appears as both the nearest version and in the available list.
+      expect(screen.getAllByText('4.1.108.Final').length).toBeGreaterThanOrEqual(1);
+      expect(
+        screen.getByText(
+          'Matches to the minor level — same major and minor version, different patch.',
+        ),
+      ).toBeInTheDocument();
+      // A catalog version only present in the drawer list.
+      expect(screen.getByText('4.1.9.Final')).toBeInTheDocument();
+    });
+
+    it('shows the no-higher-version line but still lists catalog versions when nearest is empty', async () => {
+      const user = userEvent.setup();
+      mockPackagesData([
+        {
+          ...partialWithDetail,
+          name: 'jest',
+          version: '29.7.0',
+          nearest_higher_version: '',
+          match_segment: 'none',
+          lightwell_versions: ['29.7.0.0'],
+        },
+      ]);
+      renderTable();
+
+      await user.click(screen.getByRole('button', { name: 'jest' }));
+
+      expect(screen.getByText('No higher version available in the catalog.')).toBeInTheDocument();
+      expect(
+        screen.getByText('No shared version line with a higher catalog version.'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('29.7.0.0')).toBeInTheDocument();
+    });
+
+    it('does not make non-partial package names clickable', () => {
+      mockPackagesData([
+        {
+          name: 'spring-web',
+          version: '6.1.5',
+          ecosystem: 'Java',
+          covered: true,
+          match_status: 'exact',
+          cve_count: { critical: 0, important: 0, moderate: 0, low: 0 },
+        },
+      ]);
+      renderTable();
+
+      expect(screen.queryByRole('button', { name: 'spring-web' })).not.toBeInTheDocument();
+      expect(screen.getByText('spring-web')).toBeInTheDocument();
+    });
+
+    it('closes the drawer', async () => {
+      const user = userEvent.setup();
+      mockPackagesData([partialWithDetail]);
+      renderTable();
+
+      await user.click(screen.getByRole('button', { name: 'netty-codec-http' }));
+      expect(screen.getByRole('heading', { name: 'netty-codec-http' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /close/i }));
+      expect(screen.queryByRole('heading', { name: 'netty-codec-http' })).not.toBeInTheDocument();
+    });
   });
 });

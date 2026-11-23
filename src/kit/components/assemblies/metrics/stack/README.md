@@ -10,12 +10,12 @@ PF chart stack, tooltips, optional legend, and a11y table host.
 
 ## What it can do
 
-| Capability     | Notes                            |
-| -------------- | -------------------------------- |
-| Stacked series | Per-bar `fill` on data           |
-| Tooltips       | Per-series label                 |
-| Legend         | Optional (`showLegend`)          |
-| A11y table     | Optional structured table for SR |
+| Capability     | Notes                                                                         |
+| -------------- | ----------------------------------------------------------------------------- |
+| Stacked series | Per-bar `fill` on data                                                        |
+| Tooltips       | Per-series label; optional per-datum `tooltipDetail` appended on its own line |
+| Legend         | Optional (`showLegend`)                                                       |
+| A11y table     | Optional structured table for SR                                              |
 
 ## Related
 
