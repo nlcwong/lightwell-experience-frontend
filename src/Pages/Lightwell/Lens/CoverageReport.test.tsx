@@ -185,4 +185,51 @@ describe('CoverageReport', () => {
     const paragraphs = screen.getAllByRole('paragraph');
     expect(paragraphs.some((p) => p.textContent?.includes('75 of 100 packages'))).toBe(true);
   });
+
+  it('omits the partial-match breakdown legend when the report has no percentages', () => {
+    renderCoverageReport();
+    // No inner-legend row without percentages (Patch/Minor/Major are legend-only labels).
+    expect(screen.queryByText('Patch')).not.toBeInTheDocument();
+    expect(screen.queryByText('Minor')).not.toBeInTheDocument();
+    expect(screen.queryByText('Major')).not.toBeInTheDocument();
+  });
+
+  it('shows the partial-match breakdown legend when percentages are present', () => {
+    (useCoverageReport as jest.Mock).mockReturnValue({
+      filename: 'test-sbom.json',
+      report: {
+        ...defaultCoverageReportItem,
+        ecosystem_coverage_percentages: [
+          { ecosystem: 'Java', exact: 60, major: 5, minor: 5, patch: 5, none: 5, no_coverage: 20 },
+          {
+            ecosystem: 'Python',
+            exact: 57,
+            major: 3,
+            minor: 3,
+            patch: 3,
+            none: 5,
+            no_coverage: 29,
+          },
+          {
+            ecosystem: 'JavaScript',
+            exact: 0,
+            major: 0,
+            minor: 0,
+            patch: 0,
+            none: 0,
+            no_coverage: 100,
+          },
+        ],
+      },
+      isLoading: false,
+      startOver: jest.fn(),
+    });
+
+    renderCoverageReport();
+
+    // Inner-legend labels in Patch / Minor / Major order (plus None).
+    expect(screen.getByText('Patch')).toBeInTheDocument();
+    expect(screen.getByText('Minor')).toBeInTheDocument();
+    expect(screen.getByText('Major')).toBeInTheDocument();
+  });
 });

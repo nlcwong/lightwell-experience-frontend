@@ -10,13 +10,14 @@ future products) pass series + title; chromatic defaults come from
 
 ## What it can do
 
-| Capability              | Notes                                                 |
-| ----------------------- | ----------------------------------------------------- |
-| Series                  | `{ x, y }[]`                                          |
-| Center title / subtitle | PF ChartDonut                                         |
-| Color scale             | Default match-status order; override via `colorScale` |
-| Tooltips                | Optional `getLabel`                                   |
-| Responsive host         | Optional `containerRef` for call-site resize observer |
+| Capability              | Notes                                                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Series                  | `{ x, y }[]`                                                                                                                                     |
+| Center title / subtitle | PF ChartDonut                                                                                                                                    |
+| Color scale             | Default match-status order; override via `colorScale`                                                                                            |
+| Tooltips                | Optional `getLabel`                                                                                                                              |
+| Nested inner ring       | Optional `innerData` / `innerColorScale` / `innerGetLabel` — a second concentric ring inside the main one (e.g. a drill-down of one outer slice) |
+| Responsive host         | Optional `containerRef` for call-site resize observer                                                                                            |
 
 ## Related
 

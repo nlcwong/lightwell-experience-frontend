@@ -1,3 +1,5 @@
+import { chart_color_green_100 } from '@patternfly/react-tokens/dist/esm/chart_color_green_100';
+import { chart_color_green_500 } from '@patternfly/react-tokens/dist/esm/chart_color_green_500';
 import { chart_color_purple_100 } from '@patternfly/react-tokens/dist/esm/chart_color_purple_100';
 import { chart_color_purple_300 } from '@patternfly/react-tokens/dist/esm/chart_color_purple_300';
 import { chart_donut_label_subtitle_Fill } from '@patternfly/react-tokens/dist/esm/chart_donut_label_subtitle_Fill';
@@ -6,6 +8,7 @@ import { chart_global_FontSize_2xl } from '@patternfly/react-tokens/dist/esm/cha
 import { chart_global_FontSize_sm } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_sm';
 import { t_global_border_color_nonstatus_gray_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_gray_default';
 import { t_global_border_color_nonstatus_green_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_green_default';
+import { t_global_border_color_nonstatus_orange_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_orange_default';
 import { t_global_border_color_nonstatus_yellow_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_yellow_default';
 import { t_global_font_weight_body_default } from '@patternfly/react-tokens/dist/esm/t_global_font_weight_body_default';
 import type { CSSProperties } from 'react';
@@ -26,6 +29,18 @@ export const MATCH_STATUS_COLORS = {
 export const UNMATCHED_FILL = MATCH_STATUS_COLORS.none;
 
 export type MatchStatusColorKey = keyof typeof MATCH_STATUS_COLORS;
+
+// Partial-match sub-level scale for the donut's nested inner ring. Patch & Minor
+// are two shades of green (closest matches), Major is amber, None is gray — chosen
+// to stay distinct from the outer ring's exact(green)/partial(amber)/none(gray).
+export const PARTIAL_LEVEL_COLORS = {
+  patch: chart_color_green_500.var,
+  minor: chart_color_green_100.var,
+  major: t_global_border_color_nonstatus_orange_default.var,
+  none: t_global_border_color_nonstatus_gray_default.var,
+} as const;
+
+export type PartialLevelColorKey = keyof typeof PARTIAL_LEVEL_COLORS;
 
 // Bar chart
 

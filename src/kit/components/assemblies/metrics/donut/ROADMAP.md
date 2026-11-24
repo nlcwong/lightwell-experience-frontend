@@ -40,16 +40,27 @@ resize-observer call sites (ref on container).
 />
 ```
 
-| Prop                  | Role                                         |
-| --------------------- | -------------------------------------------- |
-| `data`                | `{ x, y }[]` slices                          |
-| `width` / `height`    | Chart box                                    |
-| `title` / `subTitle?` | Center labels                                |
-| `colorScale?`         | Default: match-status exact → partial → none |
-| `allowTooltip?`       | Default true                                 |
-| `getLabel?`           | Tooltip label fn                             |
-| `containerRef?`       | Web measure host                             |
-| `ariaDesc?`           | A11y                                         |
+| Prop                  | Role                                                |
+| --------------------- | --------------------------------------------------- |
+| `data`                | `{ x, y }[]` slices                                 |
+| `width` / `height`    | Chart box                                           |
+| `title` / `subTitle?` | Center labels                                       |
+| `colorScale?`         | Default: match-status exact → partial → none        |
+| `allowTooltip?`       | Default true                                        |
+| `getLabel?`           | Tooltip label fn                                    |
+| `innerData?`          | Optional nested inner-ring slices (`{ x, y }[]`)    |
+| `innerColorScale?`    | Inner-ring colors (use `'transparent'` for padding) |
+| `innerGetLabel?`      | Inner-ring tooltip label fn                         |
+| `innerAriaDesc?`      | Inner-ring a11y description                         |
+| `containerRef?`       | Web measure host                                    |
+| `ariaDesc?`           | A11y                                                |
+
+**Nested ring:** when `innerData` is set, the unit renders a second concentric
+`ChartDonut` inside the main one (shared center/SVG, smaller radius with a gap), and moves
+the center `title`/`subTitle` to the inner ring. Both rings use `padAngle={0}` and the same
+`startAngle`/order so a caller can align inner segments under an outer slice by padding the
+inner series (transparent segments) to the same total. Kit stays generic — the caller owns
+the series, colors, and alignment padding.
 
 ---
 

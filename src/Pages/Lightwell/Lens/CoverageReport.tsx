@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRemoteHook } from '@scalprum/react-core';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -60,10 +60,14 @@ import {
   COVERAGE_DONUT_WIDTH,
   getDonutData,
   getDonutLabel,
+  getInnerDonutColorScale,
+  getInnerDonutData,
+  getInnerDonutLabel,
   getMatchedPackagePercentage,
   getMatchDonutChartHeight,
+  getPartialBreakdownCounts,
 } from './charts/matchDonutModel';
-import { ECOSYSTEM_CHART_MIN_WIDTH } from './charts/chartTheme';
+import { ECOSYSTEM_CHART_MIN_WIDTH, PARTIAL_LEVEL_COLORS } from './charts/chartTheme';
 import {
   getEcosystemBarChartHeight,
   getEcosystemChartA11yTable,
@@ -116,6 +120,8 @@ const CoverageReport = () => {
 
   const percentage = report ? getMatchedPackagePercentage(report) : 0;
   const donutData = useMemo(() => (report ? getDonutData(report) : []), [report]);
+  const innerDonutData = useMemo(() => (report ? getInnerDonutData(report) : null), [report]);
+  const innerDonutColorScale = useMemo(() => getInnerDonutColorScale(), []);
   const stackModel = useMemo(() => (report ? getEcosystemChartModel(report) : null), [report]);
 
   const matchCountItems = useMemo(() => {
@@ -143,6 +149,51 @@ const CoverageReport = () => {
         color='none'
       />,
     ];
+  }, [report]);
+
+  // Inner-donut legend row: Patch / Minor / Major / None with bars matching the ring.
+  const partialLegendItems = useMemo(() => {
+    const breakdown = report ? getPartialBreakdownCounts(report) : null;
+    if (!breakdown) return [];
+    const levels = [
+      {
+        key: 'patch',
+        label: 'Patch',
+        value: breakdown.patch,
+        color: PARTIAL_LEVEL_COLORS.patch,
+        tooltip: 'Matches down to the patch version; only the 4th component differs.',
+      },
+      {
+        key: 'minor',
+        label: 'Minor',
+        value: breakdown.minor,
+        color: PARTIAL_LEVEL_COLORS.minor,
+        tooltip: 'Matches the major and minor version; the patch differs.',
+      },
+      {
+        key: 'major',
+        label: 'Major',
+        value: breakdown.major,
+        color: PARTIAL_LEVEL_COLORS.major,
+        tooltip: 'Only the major version agrees.',
+      },
+      {
+        key: 'none',
+        label: 'None',
+        value: breakdown.none,
+        color: PARTIAL_LEVEL_COLORS.none,
+        tooltip: 'No higher catalog version shares the major.',
+      },
+    ];
+    return levels.map((level) => (
+      <LwMetricsCount
+        key={level.key}
+        value={level.value}
+        label={level.label}
+        tooltip={level.tooltip}
+        style={{ '--lw-metrics-count-bar-color': level.color } as CSSProperties}
+      />
+    ));
   }, [report]);
 
   const stackSeries: LwMetricsStackSeries[] = useMemo(() => {
@@ -311,6 +362,10 @@ const CoverageReport = () => {
               subTitle='packages matched'
               ariaDesc='Match summary donut chart'
               getLabel={getDonutLabel}
+              innerData={innerDonutData ?? undefined}
+              innerColorScale={innerDonutColorScale}
+              innerGetLabel={getInnerDonutLabel}
+              innerAriaDesc='Partial match breakdown'
               containerRef={donutContainerRef}
             />
           </PageChromeSlot>
@@ -331,7 +386,12 @@ const CoverageReport = () => {
               <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
                 <LwTitle headingLevel='h4'>Summary</LwTitle>
                 <LwMetricsCard>
-                  <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
+                  <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                    <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
+                    {partialLegendItems.length > 0 ? (
+                      <LwMetricsCountSlots>{partialLegendItems}</LwMetricsCountSlots>
+                    ) : null}
+                  </Flex>
                 </LwMetricsCard>
               </Flex>
               {hasCveData ? (

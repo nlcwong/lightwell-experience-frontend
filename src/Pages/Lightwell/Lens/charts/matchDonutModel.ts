@@ -1,4 +1,5 @@
 import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
+import { PARTIAL_LEVEL_COLORS } from './chartTheme';
 
 export const COVERAGE_DONUT_WIDTH = 320;
 export const COVERAGE_DONUT_HEIGHT = 280;
@@ -30,3 +31,111 @@ export const getDonutData = (report: CompletedCoverageReport): DonutDatum[] => [
 
 export const getDonutLabel = ({ datum }: { datum: DonutDatum }): string =>
   `${datum.x}: ${datum.y} packages`;
+
+// --- Nested inner ring: partial-match breakdown (major/minor/patch/none) ---
+
+export type PartialBreakdownCounts = {
+  major: number;
+  minor: number;
+  patch: number;
+  none: number;
+};
+
+const PARTIAL_LEVELS = ['major', 'minor', 'patch', 'none'] as const;
+
+/**
+ * Distributes `target` across the four levels proportional to `weights`, rounding
+ * so the four integers sum *exactly* to `target` (largest-remainder / Hamilton).
+ */
+const distributeExact = (
+  weights: PartialBreakdownCounts,
+  target: number,
+): PartialBreakdownCounts => {
+  const zero: PartialBreakdownCounts = { major: 0, minor: 0, patch: 0, none: 0 };
+  const weightSum = PARTIAL_LEVELS.reduce((sum, level) => sum + weights[level], 0);
+  if (weightSum <= 0 || target <= 0) {
+    return zero;
+  }
+
+  const ideal = PARTIAL_LEVELS.map((level) => {
+    const value = (weights[level] / weightSum) * target;
+    return { level, floor: Math.floor(value), remainder: value - Math.floor(value) };
+  });
+
+  const result = { ...zero };
+  ideal.forEach(({ level, floor }) => {
+    result[level] = floor;
+  });
+
+  let leftover = target - ideal.reduce((sum, { floor }) => sum + floor, 0);
+  const byRemainderDesc = [...ideal].sort((a, b) => b.remainder - a.remainder);
+  for (let i = 0; leftover > 0; i += 1, leftover -= 1) {
+    result[byRemainderDesc[i % byRemainderDesc.length].level] += 1;
+  }
+  return result;
+};
+
+/**
+ * Report-wide partial-match breakdown, derived from per-ecosystem
+ * `ecosystem_coverage_percentages` (× each ecosystem's total) and scaled to sum
+ * exactly to `partial_matches`. Returns null when the percentages are absent.
+ */
+export const getPartialBreakdownCounts = (
+  report: CompletedCoverageReport,
+): PartialBreakdownCounts | null => {
+  const percentages = report.ecosystem_coverage_percentages;
+  if (!percentages || percentages.length === 0) {
+    return null;
+  }
+
+  const totalByEcosystem = new Map(
+    report.ecosystem_coverage_summary.map((eco) => [eco.ecosystem, eco.total]),
+  );
+
+  const weights: PartialBreakdownCounts = { major: 0, minor: 0, patch: 0, none: 0 };
+  for (const pct of percentages) {
+    const total = totalByEcosystem.get(pct.ecosystem) ?? 0;
+    weights.major += (pct.major / 100) * total;
+    weights.minor += (pct.minor / 100) * total;
+    weights.patch += (pct.patch / 100) * total;
+    weights.none += (pct.none / 100) * total;
+  }
+
+  return distributeExact(weights, report.partial_matches);
+};
+
+/**
+ * Inner-ring slices aligned under the outer Partial arc: transparent padding sized
+ * to exact/unmatched bookends the four colored partial levels. Inner total equals
+ * the outer total so (with padAngle 0) the rings share one angular scale.
+ */
+export const getInnerDonutData = (report: CompletedCoverageReport): DonutDatum[] | null => {
+  const breakdown = getPartialBreakdownCounts(report);
+  if (!breakdown) {
+    return null;
+  }
+  // Order: Patch → Minor → Major → None, so Patch lands at the outer Exact↔Partial
+  // boundary (first colored wedge clockwise) and None borders the No-match arc.
+  return [
+    { x: '', y: report.exact_matches },
+    { x: 'Patch', y: breakdown.patch },
+    { x: 'Minor', y: breakdown.minor },
+    { x: 'Major', y: breakdown.major },
+    { x: 'Partial – none', y: breakdown.none },
+    { x: '', y: report.unmatched },
+  ];
+};
+
+// Matches getInnerDonutData order; padding segments are transparent.
+export const getInnerDonutColorScale = (): string[] => [
+  'transparent',
+  PARTIAL_LEVEL_COLORS.patch,
+  PARTIAL_LEVEL_COLORS.minor,
+  PARTIAL_LEVEL_COLORS.major,
+  PARTIAL_LEVEL_COLORS.none,
+  'transparent',
+];
+
+// No tooltip on the transparent padding (empty x).
+export const getInnerDonutLabel = ({ datum }: { datum: DonutDatum }): string | null =>
+  datum.x ? `${datum.x}: ${datum.y} packages` : null;
