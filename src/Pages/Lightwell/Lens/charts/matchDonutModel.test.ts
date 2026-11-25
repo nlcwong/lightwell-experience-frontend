@@ -107,11 +107,18 @@ describe('getInnerDonutData', () => {
   it('bookends the colored partial levels with transparent padding and matches the outer total', () => {
     const data = getInnerDonutData(makeReport({ percentages: [javaPct] }))!;
 
-    // [exact-pad, Patch, Minor, Major, Partial – none, unmatched-pad]
+    // [exact-pad, Same Patch, Same Minor, Same Major, Different Major, unmatched-pad].
     expect(data).toHaveLength(6);
-    expect(data[0]).toEqual({ x: '', y: 1 }); // exact padding
-    expect(data[5]).toEqual({ x: '', y: 1 }); // unmatched padding
-    expect(data.map((d) => d.x)).toEqual(['', 'Patch', 'Minor', 'Major', 'Partial – none', '']);
+    expect(data[0]).toEqual({ x: 'exact-pad', y: 1 });
+    expect(data[5]).toEqual({ x: 'unmatched-pad', y: 1 });
+    expect(data.map((d) => d.x)).toEqual([
+      'exact-pad',
+      'Same Patch',
+      'Same Minor',
+      'Same Major',
+      'Different Major',
+      'unmatched-pad',
+    ]);
 
     // Colored span equals partial_matches; total equals the report total (alignment).
     const colored = data.slice(1, 5).reduce((sum, d) => sum + d.y, 0);
@@ -121,7 +128,7 @@ describe('getInnerDonutData', () => {
 });
 
 describe('getInnerDonutColorScale', () => {
-  it('is 6 entries with transparent padding at both ends', () => {
+  it('maps colors to data by index with transparent padding at both ends', () => {
     const scale = getInnerDonutColorScale();
     expect(scale).toHaveLength(6);
     expect(scale[0]).toBe('transparent');
@@ -131,7 +138,8 @@ describe('getInnerDonutColorScale', () => {
 
 describe('getInnerDonutLabel', () => {
   it('labels colored wedges and suppresses the padding tooltip', () => {
-    expect(getInnerDonutLabel({ datum: { x: 'Minor', y: 2 } })).toBe('Minor: 2 packages');
-    expect(getInnerDonutLabel({ datum: { x: '', y: 1 } })).toBeNull();
+    expect(getInnerDonutLabel({ datum: { x: 'Same Minor', y: 2 } })).toBe('Same Minor: 2 packages');
+    expect(getInnerDonutLabel({ datum: { x: 'exact-pad', y: 1 } })).toBeNull();
+    expect(getInnerDonutLabel({ datum: { x: 'unmatched-pad', y: 1 } })).toBeNull();
   });
 });

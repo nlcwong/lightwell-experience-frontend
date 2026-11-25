@@ -23,6 +23,10 @@ export type DonutDatum = {
   y: number;
 };
 
+// Unique keys for the inner ring's transparent padding slices (distinct keys matter:
+// duplicate pie keys scramble Victory's colorScale index mapping).
+const INNER_PAD_KEYS = ['exact-pad', 'unmatched-pad'];
+
 export const getDonutData = (report: CompletedCoverageReport): DonutDatum[] => [
   { x: 'Exact match', y: report.exact_matches },
   { x: 'Partial match', y: report.partial_matches },
@@ -115,18 +119,20 @@ export const getInnerDonutData = (report: CompletedCoverageReport): DonutDatum[]
     return null;
   }
   // Order: Patch → Minor → Major → None, so Patch lands at the outer Exact↔Partial
-  // boundary (first colored wedge clockwise) and None borders the No-match arc.
+  // boundary (first colored wedge) and None borders the No-match arc. Transparent
+  // padding (unique keys) bookends the colored wedges so they align under the Partial arc.
   return [
-    { x: '', y: report.exact_matches },
-    { x: 'Patch', y: breakdown.patch },
-    { x: 'Minor', y: breakdown.minor },
-    { x: 'Major', y: breakdown.major },
-    { x: 'Partial – none', y: breakdown.none },
-    { x: '', y: report.unmatched },
+    { x: INNER_PAD_KEYS[0], y: report.exact_matches },
+    { x: 'Same Patch', y: breakdown.patch },
+    { x: 'Same Minor', y: breakdown.minor },
+    { x: 'Same Major', y: breakdown.major },
+    { x: 'Different Major', y: breakdown.none },
+    { x: INNER_PAD_KEYS[1], y: report.unmatched },
   ];
 };
 
-// Matches getInnerDonutData order; padding segments are transparent.
+// Colors map to getInnerDonutData by index (Victory applies colorScale[i] → data[i]);
+// padding is transparent at both ends.
 export const getInnerDonutColorScale = (): string[] => [
   'transparent',
   PARTIAL_LEVEL_COLORS.patch,
@@ -136,6 +142,6 @@ export const getInnerDonutColorScale = (): string[] => [
   'transparent',
 ];
 
-// No tooltip on the transparent padding (empty x).
+// No tooltip on the transparent padding segments.
 export const getInnerDonutLabel = ({ datum }: { datum: DonutDatum }): string | null =>
-  datum.x ? `${datum.x}: ${datum.y} packages` : null;
+  INNER_PAD_KEYS.includes(datum.x) ? null : `${datum.x}: ${datum.y} packages`;

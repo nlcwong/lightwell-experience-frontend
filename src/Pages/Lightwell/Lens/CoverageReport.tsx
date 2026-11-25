@@ -158,28 +158,28 @@ const CoverageReport = () => {
     const levels = [
       {
         key: 'patch',
-        label: 'Patch',
+        label: 'Same Patch',
         value: breakdown.patch,
         color: PARTIAL_LEVEL_COLORS.patch,
         tooltip: 'Matches down to the patch version; only the 4th component differs.',
       },
       {
         key: 'minor',
-        label: 'Minor',
+        label: 'Same Minor',
         value: breakdown.minor,
         color: PARTIAL_LEVEL_COLORS.minor,
         tooltip: 'Matches the major and minor version; the patch differs.',
       },
       {
         key: 'major',
-        label: 'Major',
+        label: 'Same Major',
         value: breakdown.major,
         color: PARTIAL_LEVEL_COLORS.major,
         tooltip: 'Only the major version agrees.',
       },
       {
         key: 'none',
-        label: 'None',
+        label: 'Different Major',
         value: breakdown.none,
         color: PARTIAL_LEVEL_COLORS.none,
         tooltip: 'No higher catalog version shares the major.',
@@ -384,15 +384,20 @@ const CoverageReport = () => {
               style={{ width: '100%' }}
             >
               <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
-                <LwTitle headingLevel='h4'>Summary</LwTitle>
-                <LwMetricsCard>
-                  <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                <Flex direction={{ default: 'column' }} gap={{ default: 'gapSm' }}>
+                  <LwTitle headingLevel='h4'>Package match</LwTitle>
+                  <LwMetricsCard>
                     <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
-                    {partialLegendItems.length > 0 ? (
+                  </LwMetricsCard>
+                </Flex>
+                {partialLegendItems.length > 0 ? (
+                  <Flex direction={{ default: 'column' }} gap={{ default: 'gapSm' }}>
+                    <LwTitle headingLevel='h4'>Version match</LwTitle>
+                    <LwMetricsCard>
                       <LwMetricsCountSlots>{partialLegendItems}</LwMetricsCountSlots>
-                    ) : null}
+                    </LwMetricsCard>
                   </Flex>
-                </LwMetricsCard>
+                ) : null}
               </Flex>
               {hasCveData ? (
                 <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>

@@ -107,7 +107,7 @@ describe('CoverageReport', () => {
     expect(screen.getByRole('heading', { level: 4, name: '60' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: '15' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: '25' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 4, name: 'Summary' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'Package match' })).toBeInTheDocument();
     expect(screen.getByText('Exact match')).toBeInTheDocument();
     expect(screen.getByText('Partial match')).toBeInTheDocument();
   });
@@ -188,10 +188,10 @@ describe('CoverageReport', () => {
 
   it('omits the partial-match breakdown legend when the report has no percentages', () => {
     renderCoverageReport();
-    // No inner-legend row without percentages (Patch/Minor/Major are legend-only labels).
-    expect(screen.queryByText('Patch')).not.toBeInTheDocument();
-    expect(screen.queryByText('Minor')).not.toBeInTheDocument();
-    expect(screen.queryByText('Major')).not.toBeInTheDocument();
+    // No inner-legend row without percentages (these are legend-only labels).
+    expect(screen.queryByText('Same Patch')).not.toBeInTheDocument();
+    expect(screen.queryByText('Same Minor')).not.toBeInTheDocument();
+    expect(screen.queryByText('Same Major')).not.toBeInTheDocument();
   });
 
   it('shows the partial-match breakdown legend when percentages are present', () => {
@@ -227,9 +227,11 @@ describe('CoverageReport', () => {
 
     renderCoverageReport();
 
-    // Inner-legend labels in Patch / Minor / Major order (plus None).
-    expect(screen.getByText('Patch')).toBeInTheDocument();
-    expect(screen.getByText('Minor')).toBeInTheDocument();
-    expect(screen.getByText('Major')).toBeInTheDocument();
+    // Inner-legend card title + labels.
+    expect(screen.getByRole('heading', { level: 4, name: 'Version match' })).toBeInTheDocument();
+    expect(screen.getByText('Same Patch')).toBeInTheDocument();
+    expect(screen.getByText('Same Minor')).toBeInTheDocument();
+    expect(screen.getByText('Same Major')).toBeInTheDocument();
+    expect(screen.getByText('Different Major')).toBeInTheDocument();
   });
 });

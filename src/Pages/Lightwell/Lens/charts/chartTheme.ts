@@ -1,14 +1,15 @@
-import { chart_color_green_100 } from '@patternfly/react-tokens/dist/esm/chart_color_green_100';
-import { chart_color_green_500 } from '@patternfly/react-tokens/dist/esm/chart_color_green_500';
 import { chart_color_purple_100 } from '@patternfly/react-tokens/dist/esm/chart_color_purple_100';
 import { chart_color_purple_300 } from '@patternfly/react-tokens/dist/esm/chart_color_purple_300';
 import { chart_donut_label_subtitle_Fill } from '@patternfly/react-tokens/dist/esm/chart_donut_label_subtitle_Fill';
 import { chart_donut_label_title_Fill } from '@patternfly/react-tokens/dist/esm/chart_donut_label_title_Fill';
 import { chart_global_FontSize_2xl } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_2xl';
 import { chart_global_FontSize_sm } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_sm';
+import { t_chart_color_yellow_100 } from '@patternfly/react-tokens/dist/esm/t_chart_color_yellow_100';
+import { t_chart_color_yellow_200 } from '@patternfly/react-tokens/dist/esm/t_chart_color_yellow_200';
+import { t_chart_color_yellow_300 } from '@patternfly/react-tokens/dist/esm/t_chart_color_yellow_300';
+import { t_chart_color_yellow_400 } from '@patternfly/react-tokens/dist/esm/t_chart_color_yellow_400';
 import { t_global_border_color_nonstatus_gray_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_gray_default';
 import { t_global_border_color_nonstatus_green_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_green_default';
-import { t_global_border_color_nonstatus_orange_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_orange_default';
 import { t_global_border_color_nonstatus_yellow_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_yellow_default';
 import { t_global_font_weight_body_default } from '@patternfly/react-tokens/dist/esm/t_global_font_weight_body_default';
 import type { CSSProperties } from 'react';
@@ -30,14 +31,15 @@ export const UNMATCHED_FILL = MATCH_STATUS_COLORS.none;
 
 export type MatchStatusColorKey = keyof typeof MATCH_STATUS_COLORS;
 
-// Partial-match sub-level scale for the donut's nested inner ring. Patch & Minor
-// are two shades of green (closest matches), Major is amber, None is gray — chosen
-// to stay distinct from the outer ring's exact(green)/partial(amber)/none(gray).
+// Partial-match sub-level scale for the donut's nested inner ring: a single-hue
+// amber→gold ramp from PF's current chart-yellow tokens (`--pf-t--chart--color--
+// yellow--*`). In this family lightness goes 100 = light (#dca614) → 400 = dark
+// (#73480b), so Patch = 400 (dark, closest match) fades to None = 100 (gold, loosest).
 export const PARTIAL_LEVEL_COLORS = {
-  patch: chart_color_green_500.var,
-  minor: chart_color_green_100.var,
-  major: t_global_border_color_nonstatus_orange_default.var,
-  none: t_global_border_color_nonstatus_gray_default.var,
+  patch: t_chart_color_yellow_400.var, // #73480b dark amber (closest match)
+  minor: t_chart_color_yellow_300.var, // #96640f
+  major: t_chart_color_yellow_200.var, // #b98412
+  none: t_chart_color_yellow_100.var, // #dca614 gold (loosest)
 } as const;
 
 export type PartialLevelColorKey = keyof typeof PARTIAL_LEVEL_COLORS;
