@@ -44,6 +44,16 @@ export const PARTIAL_LEVEL_COLORS = {
 
 export type PartialLevelColorKey = keyof typeof PARTIAL_LEVEL_COLORS;
 
+// Display labels for the partial-match sub-levels. Single source of truth shared by
+// the donut inner ring, the Summary legend, and the ecosystem bar tooltip so the
+// names/order can't drift between them.
+export const PARTIAL_LEVEL_LABELS = {
+  patch: 'Same Patch',
+  minor: 'Same Minor',
+  major: 'Same Major',
+  none: 'Different Major',
+} as const;
+
 // Bar chart
 
 export const ECOSYSTEM_BAR_LEGEND_SWATCH_SIZE = 12;

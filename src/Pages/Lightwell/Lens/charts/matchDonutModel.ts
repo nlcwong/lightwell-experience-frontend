@@ -1,5 +1,5 @@
 import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
-import { PARTIAL_LEVEL_COLORS } from './chartTheme';
+import { PARTIAL_LEVEL_COLORS, PARTIAL_LEVEL_LABELS } from './chartTheme';
 
 export const COVERAGE_DONUT_WIDTH = 320;
 export const COVERAGE_DONUT_HEIGHT = 280;
@@ -123,10 +123,10 @@ export const getInnerDonutData = (report: CompletedCoverageReport): DonutDatum[]
   // padding (unique keys) bookends the colored wedges so they align under the Partial arc.
   return [
     { x: INNER_PAD_KEYS[0], y: report.exact_matches },
-    { x: 'Same Patch', y: breakdown.patch },
-    { x: 'Same Minor', y: breakdown.minor },
-    { x: 'Same Major', y: breakdown.major },
-    { x: 'Different Major', y: breakdown.none },
+    { x: PARTIAL_LEVEL_LABELS.patch, y: breakdown.patch },
+    { x: PARTIAL_LEVEL_LABELS.minor, y: breakdown.minor },
+    { x: PARTIAL_LEVEL_LABELS.major, y: breakdown.major },
+    { x: PARTIAL_LEVEL_LABELS.none, y: breakdown.none },
     { x: INNER_PAD_KEYS[1], y: report.unmatched },
   ];
 };

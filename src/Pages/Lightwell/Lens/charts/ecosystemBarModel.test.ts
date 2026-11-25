@@ -38,24 +38,30 @@ const makeReport = (percentages?: EcosystemCoveragePercentages[]): CompletedCove
 });
 
 describe('formatPartialBreakdown', () => {
-  it('lists Major, Minor, Patch, None one per line with a dash separator', () => {
-    expect(formatPartialBreakdown(javaPct)).toBe(
-      'Major - 0%\nMinor - 20%\nPatch - 20%\nNone - 20%',
+  it('lists Same Patch/Minor/Major, Different Major with count (pct%) in donut order', () => {
+    // Java total 5: patch/minor/none = 20% = 1 pkg each, major 0% = 0.
+    expect(formatPartialBreakdown(javaPct, 5)).toBe(
+      'Same Patch: 1 (20%)\nSame Minor: 1 (20%)\nSame Major: 0 (0%)\nDifferent Major: 1 (20%)',
     );
   });
 
-  it('keeps one decimal only when needed', () => {
+  it('keeps one decimal only when needed and derives counts from the total', () => {
     expect(
-      formatPartialBreakdown({
-        ecosystem: 'Java',
-        exact: 69.2,
-        major: 1.6,
-        minor: 4.6,
-        patch: 7.7,
-        none: 3.1,
-        no_coverage: 13.8,
-      }),
-    ).toBe('Major - 1.6%\nMinor - 4.6%\nPatch - 7.7%\nNone - 3.1%');
+      formatPartialBreakdown(
+        {
+          ecosystem: 'Java',
+          exact: 69.2,
+          major: 1.6,
+          minor: 4.6,
+          patch: 7.7,
+          none: 3.1,
+          no_coverage: 13.8,
+        },
+        1000,
+      ),
+    ).toBe(
+      'Same Patch: 77 (7.7%)\nSame Minor: 46 (4.6%)\nSame Major: 16 (1.6%)\nDifferent Major: 31 (3.1%)',
+    );
   });
 });
 
@@ -64,7 +70,7 @@ describe('getEcosystemChartModel', () => {
     const model = getEcosystemChartModel(makeReport([javaPct]));
 
     expect(model.partialPackages[0].tooltipDetail).toBe(
-      'Major - 0%\nMinor - 20%\nPatch - 20%\nNone - 20%',
+      'Same Patch: 1 (20%)\nSame Minor: 1 (20%)\nSame Major: 0 (0%)\nDifferent Major: 1 (20%)',
     );
     expect(model.exactPackages[0].tooltipDetail).toBeUndefined();
     expect(model.unmatchedPackages[0].tooltipDetail).toBeUndefined();

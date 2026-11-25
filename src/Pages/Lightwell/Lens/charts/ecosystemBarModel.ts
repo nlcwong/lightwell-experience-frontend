@@ -1,4 +1,4 @@
-import { getEcosystemMatchColor, UNMATCHED_FILL } from './chartTheme';
+import { getEcosystemMatchColor, PARTIAL_LEVEL_LABELS, UNMATCHED_FILL } from './chartTheme';
 import type {
   CompletedCoverageReport,
   CoverageMatchStatus,
@@ -63,21 +63,25 @@ const toBarSeries = (
 // Whole number when integral, else one decimal (20 -> "20", 7.7 -> "7.7").
 const formatPct = (value: number): string => `${Math.round(value * 10) / 10}`;
 
-// Partial-segment tooltip breakdown (LWLP-6123), one level per line in fixed
-// order: Major, Minor, Patch, None.
-export const formatPartialBreakdown = (pct: EcosystemCoveragePercentages): string =>
-  [
-    `Major - ${formatPct(pct.major)}%`,
-    `Minor - ${formatPct(pct.minor)}%`,
-    `Patch - ${formatPct(pct.patch)}%`,
-    `None - ${formatPct(pct.none)}%`,
-  ].join('\n');
+// Partial-segment tooltip breakdown (LWLP-6123): one level per line as
+// "<label>: <count> (<pct>%)", in the donut's order (patch → minor → major → none),
+// using the shared PARTIAL_LEVEL_LABELS. Count = pct × the ecosystem's total.
+export const formatPartialBreakdown = (
+  pct: EcosystemCoveragePercentages,
+  ecosystemTotal: number,
+): string => {
+  const count = (value: number): number => Math.round((value / 100) * ecosystemTotal);
+  const line = (key: 'patch' | 'minor' | 'major' | 'none'): string =>
+    `${PARTIAL_LEVEL_LABELS[key]}: ${count(pct[key])} (${formatPct(pct[key])}%)`;
+  return [line('patch'), line('minor'), line('major'), line('none')].join('\n');
+};
 
 export const getEcosystemChartModel = (report: CompletedCoverageReport): EcosystemChartModel => {
   const summaries = orderSummaries(report.ecosystem_coverage_summary);
   const percentagesByEcosystem = new Map(
     (report.ecosystem_coverage_percentages ?? []).map((pct) => [pct.ecosystem, pct]),
   );
+  const totalByEcosystem = new Map(summaries.map((eco) => [eco.ecosystem, eco.total]));
 
   // Attach the partial breakdown to each partial bar when percentages are present.
   const partialPackages = toBarSeries(
@@ -86,7 +90,12 @@ export const getEcosystemChartModel = (report: CompletedCoverageReport): Ecosyst
     getSeriesFill('partial'),
   ).map((datum) => {
     const pct = percentagesByEcosystem.get(datum.x);
-    return pct ? { ...datum, tooltipDetail: formatPartialBreakdown(pct) } : datum;
+    return pct
+      ? {
+          ...datum,
+          tooltipDetail: formatPartialBreakdown(pct, totalByEcosystem.get(datum.x) ?? 0),
+        }
+      : datum;
   });
 
   return {

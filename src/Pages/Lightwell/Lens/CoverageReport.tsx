@@ -67,7 +67,11 @@ import {
   getMatchDonutChartHeight,
   getPartialBreakdownCounts,
 } from './charts/matchDonutModel';
-import { ECOSYSTEM_CHART_MIN_WIDTH, PARTIAL_LEVEL_COLORS } from './charts/chartTheme';
+import {
+  ECOSYSTEM_CHART_MIN_WIDTH,
+  PARTIAL_LEVEL_COLORS,
+  PARTIAL_LEVEL_LABELS,
+} from './charts/chartTheme';
 import {
   getEcosystemBarChartHeight,
   getEcosystemChartA11yTable,
@@ -158,28 +162,28 @@ const CoverageReport = () => {
     const levels = [
       {
         key: 'patch',
-        label: 'Same Patch',
+        label: PARTIAL_LEVEL_LABELS.patch,
         value: breakdown.patch,
         color: PARTIAL_LEVEL_COLORS.patch,
         tooltip: 'Matches down to the patch version; only the 4th component differs.',
       },
       {
         key: 'minor',
-        label: 'Same Minor',
+        label: PARTIAL_LEVEL_LABELS.minor,
         value: breakdown.minor,
         color: PARTIAL_LEVEL_COLORS.minor,
         tooltip: 'Matches the major and minor version; the patch differs.',
       },
       {
         key: 'major',
-        label: 'Same Major',
+        label: PARTIAL_LEVEL_LABELS.major,
         value: breakdown.major,
         color: PARTIAL_LEVEL_COLORS.major,
         tooltip: 'Only the major version agrees.',
       },
       {
         key: 'none',
-        label: 'Different Major',
+        label: PARTIAL_LEVEL_LABELS.none,
         value: breakdown.none,
         color: PARTIAL_LEVEL_COLORS.none,
         tooltip: 'No higher catalog version shares the major.',
